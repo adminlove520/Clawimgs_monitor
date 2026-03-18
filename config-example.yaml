@@ -1,57 +1,67 @@
-# ClawFeeds 完整配置示例
-# 复制为 config.yaml 使用
 
-# ======== 必填 ========
+# 代理设置
+proxy:
+  enable: "ON"
+  http_proxy: "http://127.0.0.1:7890"
+  https_proxy: "http://127.0.0.1:7890"
+  no_proxy: "localhost,127.0.0.1"
+
+# 夜间休眠 (0-7点暂停推送)
+night_sleep:
+  switch: "ON"
+
+# GitHub 配置
 github:
-  token: "ghp_xxxxxxxxxxxxxxxxxxxx"
+  # GitHub Token（需要 repo 权限）
+  token: ""
+  # 仓库 owner（存放图片的仓库）
   owner: "adminlove520"
-  repo: "ClawFeeds"
+  # 仓库名
+  repo: "Clawimgs_monitor"
+  # Discussion 编号
+  discussion_number: 2
+  # Release tag 格式
+  release_tag_format: "daily-{date}"  # 如 daily-2026-03-18
 
-# ======== 推送配置 ========
+# 推送服务配置
 push:
-  # GitHub Discussion
+  # GitHub Discussion 推送
   github_discussion:
     switch: "ON"
+    # Discussion 仓库（在 openclaw-qa 发评论）
     discussion_owner: "ythx-101"
     discussion_repo: "openclaw-qa"
+    # Discussion 编号
     discussion_number: 133
+    # 每天发一条还是每条图片都发
+    # "daily" - 每天汇总发一条
+    # "each" - 每张图片发一条
     mode: "each"
 
-  # 钉钉
+  # 钉钉机器人
   dingding:
-    webhook: "https://oapi.dingtalk.com/robot/send?access_token=xxx"
-    secret_key: "SECxxx"
+    webhook: "https://oapi.dingtalk.com/robot/send?access_token="
+    secret_key: ""
+    switch: "ON"
+
+  # 飞书机器人
+  feishu:
+    webhook: "飞书的webhook地址"
+    switch: "OFF"
+
+  # Telegram Bot
+  tg_bot:
+    token: "Telegram Bot的token"
+    group_id: "Telegram Bot的group_id"
     switch: "OFF"
 
   # Discord
   discard:
-    webhook: "https://discord.com/api/webhooks/xxx"
-    switch: "OFF"
-
-  # 飞书
-  feishu:
-    webhook: "https://open.feishu.cn/open-apis/bot/hook/xxx"
-    switch: "OFF"
-
-  # Telegram
-  tg_bot:
-    token: "xxx"
-    group_id: "xxx"
+    webhook: "discard的webhook地址"
     switch: "OFF"
 
 # ======== AI 评论（可选） ========
 # 使用 MiniMax API 生成评论
 ai_comment:
-  switch: "OFF"
-  api_key: "your_minimax_api_key"
-
-# ======== 代理（可选） ========
-proxy:
-  enable: "OFF"
-  http_proxy: "http://127.0.0.1:7890"
-  https_proxy: "http://127.0.0.1:7890"
-  no_proxy: "localhost,127.0.0.1"
-
-# ======== 夜间休眠（可选） ========
-night_sleep:
   switch: "ON"
+  api_key: "your_minimax_api_key"
