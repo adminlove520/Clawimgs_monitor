@@ -1,4 +1,7 @@
 
+# RSS 源配置
+# 支持多个 RSS 源
+
 "OPENCLAWMEME":
   "rss_url": "https://rss-hub-iota-rosy.vercel.app/telegram/channel/OPENCLAWMEME"
   "website_name": "OPENCLAWMEME"
