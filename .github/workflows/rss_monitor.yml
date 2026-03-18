@@ -31,7 +31,7 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      - name: Run RSS Monitor
+      - name: Run Claw Monitor
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           DINGDING_WEBHOOK: ${{ secrets.DINGDING_WEBHOOK }}
@@ -39,14 +39,23 @@ jobs:
           MINIMAX_API_KEY: ${{ secrets.MINIMAX_API_KEY }}
           DINGDING_SWITCH: "ON"
           AI_COMMENT_SWITCH: "ON"
+          # 确保其他不需要的推送关闭 (如果 config.yaml 里默认开启了)
+          DISCARD_SWITCH: "OFF"
+          FEISHU_SWITCH: "OFF"
+          TELEGRAM_SWITCH: "OFF"
         run: python Rss_monitor.py --once
 
-      - name: Update database
-        if: always()
+      - name: Commit Database Changes
+        if: always() 
         run: |
-          git config --global user.name 'ClawFeeds Bot'
-          git config --global user.email 'bot@claw'
-          git add articles.db 2>/dev/null || true
-          git commit -m "Update database $(date +%Y-%m-%d\ %H:%M)" --allow-empty 2>/dev/null || true
-          git pull --rebase
-          git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }} main --force-with-lease
+          git config --global user.name 'Claw Monitor Bot'
+          git config --global user.email 'bot@noreply.github.com'
+          # 检查 articles.db 是否有变化
+          if [[ -n $(git status --porcelain articles.db) ]]; then
+            git add articles.db
+            git commit -m "Update articles database [skip ci]"
+            git pull --rebase
+            git push
+          else
+            echo "No changes to database"
+          fi
