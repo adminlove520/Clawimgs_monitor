@@ -4,6 +4,7 @@ Discussion 工具
 发评论到 GitHub Discussion
 """
 
+import os
 import random
 from .github import GitHubClient
 from datetime import datetime
@@ -70,25 +71,38 @@ def format_daily_post(date, image_urls):
     
     return content
 
-def format_single_image_post(date, image_url, image_index=1, add_comment=True):
+def get_comment(image_url):
+    """获取评论（优先 AI，其次随机）"""
+    # 检查是否使用 AI
+    ai_switch = os.environ.get('AI_COMMENT_SWITCH', '').strip().upper()
+    if ai_switch == 'ON':
+        from .ai_comment import generate_ai_comment
+        ai_comment = generate_ai_comment(image_url)
+        if ai_comment:
+            return ai_comment
+    
+    # 随机评论
+    return get_random_comment()
+
+def format_single_image_post(date, image_url, image_index=1, use_ai=True):
     """格式化单张图片帖子
     
     Args:
         date: 日期字符串
         image_url: 图片 URL
         image_index: 图片序号
-        add_comment: 是否添加随机评论
+        use_ai: 是否尝试使用 AI 评论
     
     Returns:
         Markdown 格式的内容
     """
     beijing_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     
+    # 获取评论
+    comment = get_comment(image_url) if use_ai else get_random_comment()
+    
     content = f"## 🦞 龙虾趣图 - {date} (图{image_index})\n\n"
-    
-    if add_comment:
-        content += f"**{get_random_comment()}**\n\n"
-    
+    content += f"**{comment}**\n\n"
     content += f"![龙虾趣图]({image_url})\n\n"
     content += f"*更新时间: {beijing_time}*"
     

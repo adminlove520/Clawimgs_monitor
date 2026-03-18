@@ -1,92 +1,105 @@
-
 import yaml
 import os
 from datetime import datetime
 
 # 加载配置文件
 def load_config():
-    # 从文件加载配置
     config = {}
-    try:
-        # 从上级目录加载config.yaml 
-        # 或者从当前目录加载
-        config_path = 'config.yaml'
-        if not os.path.exists(config_path):
-             config_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'config.yaml')
-
-        if os.path.exists(config_path):
+    
+    # 1. 先尝试加载 config.yaml（本地开发用）
+    config_path = 'config.yaml'
+    if not os.path.exists(config_path):
+        config_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'config.yaml')
+    
+    if os.path.exists(config_path):
+        try:
             with open(config_path, 'r', encoding='utf-8') as f:
                 config = yaml.safe_load(f) or {}
-    except FileNotFoundError:
-        print("未找到config.yaml文件，将使用环境变量配置")
-    except Exception as e:
-        print(f"加载config.yaml文件出错: {str(e)}")
+        except Exception as e:
+            print(f"加载config.yaml出错: {e}")
     
-    # 初始化push配置
-    push_config = config.get('push', {})
+    # 2. 环境变量覆盖（Zeabur/生产环境用）
     
-    # 钉钉推送配置
-    if 'dingding' not in push_config:
-        push_config['dingding'] = {}
-    
-    push_config['dingding']['webhook'] = os.environ.get('DINGDING_WEBHOOK', push_config['dingding'].get('webhook', ''))
-    push_config['dingding']['secret_key'] = os.environ.get('DINGDING_SECRET', push_config['dingding'].get('secret_key', ''))
-    push_config['dingding']['switch'] = os.environ.get('DINGDING_SWITCH', push_config['dingding'].get('switch', 'OFF'))
-    
-    # 飞书推送配置
-    if 'feishu' not in push_config:
-        push_config['feishu'] = {}
-    
-    push_config['feishu']['webhook'] = os.environ.get('FEISHU_WEBHOOK', push_config['feishu'].get('webhook', ''))
-    push_config['feishu']['switch'] = os.environ.get('FEISHU_SWITCH', push_config['feishu'].get('switch', 'OFF'))
-    
-    # Telegram Bot推送配置
-    if 'tg_bot' not in push_config:
-        push_config['tg_bot'] = {}
-    
-    push_config['tg_bot']['token'] = os.environ.get('TELEGRAM_TOKEN', push_config['tg_bot'].get('token', ''))
-    push_config['tg_bot']['group_id'] = os.environ.get('TELEGRAM_GROUP_ID', push_config['tg_bot'].get('group_id', ''))
-    push_config['tg_bot']['switch'] = os.environ.get('TELEGRAM_SWITCH', push_config['tg_bot'].get('switch', 'OFF'))
-    
-    # Discard推送配置
-    if 'discard' not in push_config:
-        push_config['discard'] = {}
-    
-    push_config['discard']['webhook'] = os.environ.get('DISCARD_WEBHOOK', push_config['discard'].get('webhook', ''))
-    push_config['discard']['switch'] = os.environ.get('DISCARD_SWITCH', push_config['discard'].get('switch', 'OFF'))
-    
-    # 添加夜间休眠配置
-    config['night_sleep'] = {
-        'switch': os.environ.get('NIGHT_SLEEP_SWITCH', config.get('night_sleep', {}).get('switch', 'ON'))
+    # GitHub 配置
+    github_config = config.get('github', {})
+    config['github'] = {
+        'token': os.environ.get('GITHUB_TOKEN', github_config.get('token', '')),
+        'owner': os.environ.get('GITHUB_OWNER', github_config.get('owner', 'adminlove520')),
+        'repo': os.environ.get('GITHUB_REPO', github_config.get('repo', 'Clawimgs_monitor')),
     }
-        
-    # 加载代理配置
+    
+    # 代理配置
     proxy_config = config.get('proxy', {})
     config['proxy'] = {
         'enable': os.environ.get('PROXY_ENABLE', proxy_config.get('enable', 'OFF')),
-        'http_proxy': os.environ.get('HTTP_PROXY', proxy_config.get('http_proxy', '')),
-        'https_proxy': os.environ.get('HTTPS_PROXY', proxy_config.get('https_proxy', '')),
-        'no_proxy': os.environ.get('NO_PROXY', proxy_config.get('no_proxy', ''))
+        'http_proxy': os.environ.get('HTTP_PROXY', proxy_config.get('http_proxy', 'http://127.0.0.1:7890')),
+        'https_proxy': os.environ.get('HTTPS_PROXY', proxy_config.get('https_proxy', 'http://127.0.0.1:7890')),
+        'no_proxy': os.environ.get('NO_PROXY', proxy_config.get('no_proxy', 'localhost,127.0.0.1')),
+    }
+    
+    # 夜间休眠
+    night_config = config.get('night_sleep', {})
+    config['night_sleep'] = {
+        'switch': os.environ.get('NIGHT_SLEEP_SWITCH', night_config.get('switch', 'ON'))
+    }
+    
+    # 推送配置
+    push_config = config.get('push', {})
+    
+    # 钉钉
+    dingding = push_config.get('dingding', {})
+    push_config['dingding'] = {
+        'webhook': os.environ.get('DINGDING_WEBHOOK', dingding.get('webhook', '')),
+        'secret_key': os.environ.get('DINGDING_SECRET', dingding.get('secret_key', '')),
+        'switch': os.environ.get('DINGDING_SWITCH', dingding.get('switch', 'OFF')),
+    }
+    
+    # 飞书
+    feishu = push_config.get('feishu', {})
+    push_config['feishu'] = {
+        'webhook': os.environ.get('FEISHU_WEBHOOK', feishu.get('webhook', '')),
+        'switch': os.environ.get('FEISHU_SWITCH', feishu.get('switch', 'OFF')),
+    }
+    
+    # Telegram
+    tg_bot = push_config.get('tg_bot', {})
+    push_config['tg_bot'] = {
+        'token': os.environ.get('TELEGRAM_TOKEN', tg_bot.get('token', '')),
+        'group_id': os.environ.get('TELEGRAM_GROUP_ID', tg_bot.get('group_id', '')),
+        'switch': os.environ.get('TELEGRAM_SWITCH', tg_bot.get('switch', 'OFF')),
+    }
+    
+    # Discord
+    discard = push_config.get('discard', {})
+    push_config['discard'] = {
+        'webhook': os.environ.get('DISCARD_WEBHOOK', discard.get('webhook', '')),
+        'switch': os.environ.get('DISCARD_SWITCH', discard.get('switch', 'OFF')),
+    }
+    
+    # GitHub Discussion
+    gh_discussion = push_config.get('github_discussion', {})
+    push_config['github_discussion'] = {
+        'switch': os.environ.get('GH_DISCUSSION_SWITCH', gh_discussion.get('switch', 'OFF')),
+        'discussion_owner': os.environ.get('GH_DISCUSSION_OWNER', gh_discussion.get('discussion_owner', '')),
+        'discussion_repo': os.environ.get('GH_DISCUSSION_REPO', gh_discussion.get('discussion_repo', '')),
+        'discussion_number': os.environ.get('GH_DISCUSSION_NUMBER', gh_discussion.get('discussion_number', 0)),
+        'mode': os.environ.get('GH_DISCUSSION_MODE', gh_discussion.get('mode', 'each')),
+        'add_comment': os.environ.get('GH_DISCUSSION_ADD_COMMENT', gh_discussion.get('add_comment', 'ON')),
     }
     
     config['push'] = push_config
+    
     return config
 
 # 判断是否应该进行夜间休眠
 def should_sleep():
-    # 加载配置
     config = load_config()
-    # 检查是否开启夜间休眠功能
-    sleep_switch = os.environ.get('NIGHT_SLEEP_SWITCH', config.get('night_sleep', {}).get('switch', 'ON'))
+    sleep_switch = config.get('night_sleep', {}).get('switch', 'ON')
     if sleep_switch != 'ON':
         return False
     
-    # 判断当前时间（北京时间）是否在0-7点之间
-    # 获取当前UTC时间，转换为北京时间（UTC+8）
     now_utc = datetime.utcnow()
-    # 转换为北京时间
     now_bj = now_utc.hour + 8
-    # 处理跨天情况
     if now_bj >= 24:
         now_bj -= 24
     

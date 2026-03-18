@@ -1,137 +1,105 @@
 
-# 📢 Clawimgs Monitor
+# ClawFeeds
 
-> Telegram 频道 @OPENCLAWMEME 图片自动监控推送工具
+> Telegram 频道图片自动监控推送到 Zeabur/Docker/本地
 
-**当前版本：V2.0.0**
-
----
-
-## ✨ 核心特性
-
-- **Telegram RSS 监控**：通过 RSSHub 监控 Telegram 频道更新
-- **自动图片提取**：自动从 RSS 中提取图片 URL
-- **GitHub Discussion 推送**：自动发评论到指定 Discussion（支持图片展示）
-- **多平台推送支持**：Discord、钉钉、飞书、Telegram
-- **抗封锁机制**：429 自动重试、循环监控模式
+**当前版本：V2.1.0**
 
 ---
 
-## 🚀 快速开始
+## ✨ 特性
 
-### 1. 克隆仓库
+- 📱 **Telegram RSS 监控**：监控 Telegram 频道更新
+- 🤖 **AI 评论**：支持 MiniMax API 自动生成趣味评论
+- 💬 **多平台推送**：Discord、钉钉、飞书、Telegram、GitHub Discussion
+- ☁️ **Zeabur 部署**：一键部署到 Zeabur
+- 🔄 **自动重试**：429 自动退避重试
 
-```bash
-git clone https://github.com/adminlove520/Clawimgs_monitor.git
-cd Clawimgs_monitor
-```
+---
 
-### 2. 配置 RSS
+## 🚀 快速部署到 Zeabur
 
-编辑 `rss.yaml`：
+### 1. Fork 本仓库
 
-```yaml
-"OPENCLAWMEME":
-  "rss_url": "https://rss-hub-iota-rosy.vercel.app/telegram/channel/OPENCLAWMEME"
-  "website_name": "OPENCLAWMEME"
-```
+### 2. 部署到 Zeabur
 
-### 3. 配置推送
+[![Deploy on Zeabur](https://zeabur.com/button.svg)](https://zeabur.com/templates/AYP?referralCode=adminlove520)
 
-编辑 `config.yaml`：
+### 3. 配置环境变量
 
-```yaml
-# GitHub 配置
-github:
-  token: "ghp_xxxxxxxxxxxxxxxxxxxx"
-  owner: "adminlove520"
-  repo: "Clawimgs_monitor"
-
-# 推送配置
-push:
-  github_discussion:
-    switch: "ON"
-    discussion_owner: "ythx-101"
-    discussion_repo: "openclaw-qa"
-    discussion_number: 32  # 创建好Discussion后填入编号
-    mode: "each"  # "each" 每张图片发一条，"daily" 每天汇总发一条
-```
-
-### 4. 运行
+在 Zeabur 服务页面 → 环境变量 中添加：
 
 ```bash
+# 必填
+GITHUB_TOKEN=ghp_xxxxxxxxxxxxxxxxxxxx
+
+# GitHub Discussion（可选）
+GH_DISCUSSION_SWITCH=ON
+GH_DISCUSSION_OWNER=ythx-101
+GH_DISCUSSION_REPO=openclaw-qa
+GH_DISCUSSION_NUMBER=133
+
+# AI 评论（可选）
+MINIMAX_API_KEY=your_minimax_api_key
+AI_COMMENT_SWITCH=ON
+
+# 钉钉推送（可选）
+DINGDING_WEBHOOK=https://oapi.dingtalk.com/robot/send?access_token=xxx
+DINGDING_SECRET=SECxxx
+DINGDING_SWITCH=ON
+
+# Discord 推送（可选）
+DISCARD_WEBHOOK=https://discord.com/api/webhooks/xxx
+DISCARD_SWITCH=ON
+
+# 代理（可选）
+PROXY_ENABLE=ON
+HTTP_PROXY=http://127.0.0.1:7890
+HTTPS_PROXY=http://127.0.0.1:7890
+```
+
+### 4. 搞定！
+
+服务会自动启动，每 15 分钟检查一次 Telegram 频道更新。
+
+---
+
+## 📋 环境变量说明
+
+| 变量 | 必填 | 说明 |
+|------|------|------|
+| `GITHUB_TOKEN` | ✅ | GitHub Token |
+| `GH_DISCUSSION_SWITCH` | - | ON/OFF |
+| `GH_DISCUSSION_OWNER` | - | Discussion 仓库 owner |
+| `GH_DISCUSSION_REPO` | - | Discussion 仓库名 |
+| `GH_DISCUSSION_NUMBER` | - | Discussion 编号 |
+| `MINIMAX_API_KEY` | - | MiniMax API Key |
+| `AI_COMMENT_SWITCH` | - | ON/OFF |
+| `DINGDING_WEBHOOK` | - | 钉钉 Webhook |
+| `DINGDING_SECRET` | - | 钉钉加签密钥 |
+| `DINGDING_SWITCH` | - | ON/OFF |
+| `DISCARD_WEBHOOK` | - | Discord Webhook |
+| `DISCARD_SWITCH` | - | ON/OFF |
+| `PROXY_ENABLE` | - | ON/OFF |
+| `HTTP_PROXY` | - | HTTP 代理 |
+| `HTTPS_PROXY` | - | HTTPS 代理 |
+
+---
+
+## 🏠 本地开发
+
+```bash
+# 克隆
+git clone https://github.com/adminlove520/ClawFeeds.git
+cd ClawFeeds
+
+# 复制配置
+cp config-example.yaml config.yaml
+# 编辑 config.yaml 填入配置
+
+# 运行
 pip install -r requirements.txt
 python Rss_monitor.py
-```
-
-### 5. 开机自启
-
-```bash
-# Windows
-schtasks /create /tn "ClawimgsMonitor" /tr "python C:\path\to\Clawimgs_monitor\Rss_monitor.py" /sc minute /mo 5 /f
-```
-
----
-
-## 📝 配置说明
-
-### rss.yaml
-
-| 配置项 | 说明 |
-|--------|------|
-| website_name | 网站名称（用于日志） |
-| rss_url | RSSHub URL |
-
-### config.yaml
-
-#### GitHub 配置
-
-| 配置项 | 说明 | 默认值 |
-|--------|------|--------|
-| token | GitHub Token | - |
-| owner | 仓库所有者 | - |
-| repo | 仓库名 | - |
-
-#### GitHub Discussion 推送
-
-| 配置项 | 说明 |
-|--------|------|
-| switch | ON/OFF |
-| discussion_owner | Discussion 所在仓库 owner |
-| discussion_repo | Discussion 所在仓库名 |
-| discussion_number | Discussion 编号 |
-| mode | "each" 每张图片发一条，"daily" 每天汇总 |
-
----
-
-## 🔧 部署方式
-
-### 方式一：本地运行
-
-```bash
-python Rss_monitor.py
-```
-
-### 方式二：开机自启
-
-**Windows**:
-```powershell
-schtasks /create /tn "ClawimgsMonitor" /tr "python C:\path\to\Rss_monitor.py" /sc minute /mo 5 /f
-```
-
-**Linux (systemd)**:
-```ini
-[Unit]
-Description=Clawimgs Monitor
-After=network.target
-
-[Service]
-Type=simple
-ExecStart=/usr/bin/python3 /path/to/Rss_monitor.py
-Restart=always
-
-[Install]
-WantedBy=multi-user.target
 ```
 
 ---
@@ -140,16 +108,17 @@ WantedBy=multi-user.target
 
 ```
 .
-├── Rss_monitor.py          # 主程序入口
+├── Rss_monitor.py          # 主程序
 ├── rss.yaml               # RSS 源配置
-├── config.yaml             # 推送配置
+├── Dockerfile             # Docker 镜像
 ├── utils/
-│   ├── notify.py          # 推送逻辑
-│   ├── rss.py             # RSS 解析
-│   ├── config.py          # 配置加载
-│   ├── db.py             # 数据库
-│   ├── github.py         # GitHub API
-│   └── discussion.py     # Discussion 工具
+│   ├── notify.py         # 推送
+│   ├── rss.py            # RSS 解析
+│   ├── config.py         # 配置加载
+│   ├── db.py            # 数据库
+│   ├── github.py        # GitHub API
+│   ├── discussion.py    # Discussion
+│   └── ai_comment.py    # AI 评论
 └── requirements.txt
 ```
 
@@ -157,8 +126,8 @@ WantedBy=multi-user.target
 
 ## 📜 许可证
 
-MIT License
+MIT
 
 ---
 
-🦞 小溪的作品+1
+🦞 小溪的作品
