@@ -106,7 +106,14 @@ def process_entries(entries, site_name, cursor, conn, send_push, data_list):
         # 查询数据库中是否存在相同链接的文章
         cursor.execute("SELECT * FROM items WHERE link = ?", (data_link,))
         result = cursor.fetchone()
-        if result is None:
+        
+        # 检查是否开启去重（默认开启）
+        from .config import load_config
+        config = load_config()
+        dedup = config.get('dedup', {}).get('switch', 'ON')
+        
+        if result is None or dedup.upper() != 'ON':
+            # 未找到相同链接的文章 或 关闭去重
             # 未找到相同链接的文章
             push_time = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())
             

@@ -38,6 +38,7 @@ jobs:
           GH_DISCUSSION_OWNER: "ythx-101"
           GH_DISCUSSION_REPO: "openclaw-qa"
           GH_DISCUSSION_NUMBER: "133"
+          DEDUP_SWITCH: "OFF"
           DINGDING_SWITCH: "OFF"
         run: python Rss_monitor.py --once
 

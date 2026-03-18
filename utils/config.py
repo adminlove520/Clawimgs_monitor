@@ -89,6 +89,11 @@ def load_config():
     
     config['push'] = push_config
     
+    # 去重配置
+    config['dedup'] = {
+        'switch': os.environ.get('DEDUP_SWITCH', 'ON'),
+    }
+    
     return config
 
 # 判断是否应该进行夜间休眠
