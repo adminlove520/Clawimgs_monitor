@@ -83,9 +83,9 @@ def save_config():
     if config:
         with open('config.yaml', 'w', encoding='utf-8') as f:
             yaml.dump(config, f, allow_unicode=True, default_flow_style=False)
-        print("✅ config.yaml 已生成")
+        print("config.yaml generated")
     else:
-        print("⚠️ 没有配置环境变量，跳过生成 config.yaml")
+        print("No config from env vars")
 
 if __name__ == '__main__':
     save_config()
