@@ -34,6 +34,11 @@ jobs:
       - name: Run RSS Monitor
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DINGDING_WEBHOOK: ${{ secrets.DINGDING_WEBHOOK }}
+          DINGDING_SECRET: ${{ secrets.DINGDING_SECRET }}
+          MINIMAX_API_KEY: ${{ secrets.MINIMAX_API_KEY }}
+          DINGDING_SWITCH: "ON"
+          AI_COMMENT_SWITCH: "ON"
         run: python Rss_monitor.py --once
 
       - name: Update database
@@ -41,8 +46,7 @@ jobs:
         run: |
           git config --global user.name 'ClawFeeds Bot'
           git config --global user.email 'bot@claw'
-          git fetch origin main
-          git reset --hard origin/main
           git add articles.db 2>/dev/null || true
           git commit -m "Update database $(date +%Y-%m-%d\ %H:%M)" --allow-empty 2>/dev/null || true
+          git pull --rebase
           git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }} main --force-with-lease
