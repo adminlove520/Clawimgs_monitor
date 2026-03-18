@@ -1,5 +1,5 @@
 
-# 📢 RSS Monitor - OPENCLAWMEME 版
+# 📢 Clawimgs Monitor
 
 > Telegram 频道 @OPENCLAWMEME 图片自动监控推送工具
 
@@ -161,4 +161,4 @@ MIT License
 
 ---
 
-🦞 小溪的作品 - 帮哥哥守护 OPENCLAWMEME 图片！
+🦞 小溪的作品+1
