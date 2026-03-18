@@ -1,5 +1,5 @@
 # 敏感文件
-config.yaml
+config-local.yaml
 *.db
 *.log
 __pycache__/

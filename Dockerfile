@@ -14,8 +14,6 @@ COPY . .
 # 安装依赖
 RUN pip install --no-cache-dir -r requirements.txt
 
-# 自动从环境变量生成配置
-RUN python generate_config.py
 
 # 启动
 CMD ["python", "Rss_monitor.py"]
